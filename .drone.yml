@@ -1,10 +1,19 @@
 ---
 pipeline:
-  publish:
+  build:
+    privileged: true
+    image: rancher/dapper:1.11.2
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    commands:
+    - dapper ci
+
+  publish-pipeline-tools:
     image: plugins/docker
-    dockerfile: Dockerfile
+    dockerfile: package/Dockerfile
     repo: rancher/pipeline-tools
     tag: ${DRONE_TAG}
     secrets: [docker_username, docker_password]
     when:
+      branch: master
       event: tag
