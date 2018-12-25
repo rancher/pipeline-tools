@@ -8,6 +8,12 @@ exiterr(){
   exit 1
 }
 
+checkerr(){
+  if [[ $? != 0 ]];then
+    exit 1
+  fi
+}
+
 loginfo(){
   echo "[INFO]""$1"
 }
@@ -45,22 +51,27 @@ prepareFunc(){
   loginfo "prepare config done..."
 
   rancher l -t $API_TOKEN --context $CICD_CLUSTER_ID:$CICD_PROJECT_ID --skip-verify $RANCHER_URL
-  
+  checkerr
+
   loginfo "refreshing catalog"
-  curl -ks -u $API_TOKEN -d '' "$RANCHER_URL""/v3/catalogs?action=refresh"
-  waitResourceActiveFunc "catalog"
+  curl -ks -o /dev/null -u $API_TOKEN -d '' "$RANCHER_URL""/v3/catalogs?action=refresh"
+  curl -ks -o /dev/null -u $API_TOKEN -d '' "$RANCHER_URL""/v3/clustercatalogs?action=refresh"
+  curl -ks -o /dev/null -u $API_TOKEN -d '' "$RANCHER_URL""/v3/projectcatalogs?action=refresh"
+  if [[ "$WAIT_REFRESH_TIME" != "" ]];then
+    sleep $WAIT_REFRESH_TIME
+  else
+    sleep 10
+  fi
 }
 
-waitResourceActiveFunc(){
+waitAppActiveFunc(){
   count=0
   limit=60
   until test "$state" = "active" || test $count -gt $limit
   do
-    if [[ "$1" = "app" ]];then
-      resourceItem=$(rancher app ls --format '{{.App.Name}} {{.App.State}} {{.App.Transitioning}} {{.App.TransitioningMessage}}'|grep "$APP_NAME ")
-    else
-      resourceItem=$(rancher catalog ls --format '{{.Catalog.Name}} {{.Catalog.State}} {{.Catalog.Transitioning}} {{.Catalog.TransitioningMessage}}'|grep "$CATALOG_NAME ")
-    fi
+    resourceItem=$(rancher app ls --format '{{.App.Name}} {{.App.State}} {{.App.Transitioning}} {{.App.TransitioningMessage}}'|grep "$APP_NAME ")
+    checkerr
+
     state=$(echo $resourceItem|cut -f2 -d' ')
     transitioning=$(echo $resourceItem|cut -f3 -d' ')
     transitioningMessage=$(echo $resourceItem|cut -f4- -d' ')
@@ -70,21 +81,25 @@ waitResourceActiveFunc(){
     sleep 5
   done
   if [[ $count -gt $limit ]];then
-    exiterr "timeout waiting $1 to be active"
+    exiterr "timeout waiting $APP_NAME to be active"
   fi
 }
 
 installAppFunc(){
-  exist=$(rancher app ls --format '{{.App.Name}}'|{ grep $APP_NAME || true; })
+  apps=$(rancher app ls --format '{{.App.Name}}')
+  checkerr
+  exist=$(echo "$apps"|{ grep $APP_NAME || true; })
   if  [[ -z "$exist" ]];then
   	loginfo "installing new $CATALOG_NAME app \"$APP_NAME\" in $TARGET_NAMESPACE namespace"
     rancher app install -a /tmp/answers.file --version $VERSION --namespace $TARGET_NAMESPACE $CATALOG_NAME $APP_NAME
-    waitResourceActiveFunc "app"
+    checkerr
+    waitAppActiveFunc
     loginfo "successfully installed the \"$APP_NAME\" app"
   else
   	loginfo "upgrading the \"$APP_NAME\" app"
     rancher app upgrade -a /tmp/answers.file $APP_NAME $VERSION
-    waitResourceActiveFunc "app"
+    checkerr
+    waitAppActiveFunc
     loginfo "successfully upgraded the \"$APP_NAME\" app"
   fi
 }
