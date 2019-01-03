@@ -28,8 +28,8 @@ checkFunc(){
   if [[ -z "$CATALOG_PATH" ]];then
     exiterr "CATALOG_PAtH variable is not set"
   fi
-  if [[ -z "$CATALOG_NAME" ]];then
-    exiterr "CATALOG_NAME variable is not set"
+  if [[ -z "$CATALOG_TEMPLATE_NAME" ]];then
+    exiterr "CATALOG_TEMPLATE_NAME variable is not set"
   fi
   if [[ -z "$VERSION" ]];then
     exiterr "VERSION variable is not set"
@@ -48,7 +48,7 @@ checkFunc(){
 
 prepareFunc(){
   HOME=/root
-  DEFAULT_MESSAGE="add version $VERSION of catalog $CATALOG_NAME. "
+  DEFAULT_MESSAGE="add version $VERSION of template $CATALOG_TEMPLATE_NAME. "
   PUSH_OPTION=""
   git config --global user.name $GIT_AUTHOR
   git config --global user.email $GIT_EMAIL
@@ -109,17 +109,17 @@ gitPublishFunc(){
   loginfo "publishing to $GIT_URL"
   REPO_DIR=/tmp/repo
   git clone --single-branch -b "$GIT_BRANCH" "$GIT_URL" $REPO_DIR
-  if [[ -d "$REPO_DIR/charts/$CATALOG_NAME/$VERSION" ]];then
-    loginfo "Version $VERSION of catalog $CATALOG_NAME exists, updating..."
+  if [[ -d "$REPO_DIR/charts/$CATALOG_TEMPLATE_NAME/$VERSION" ]];then
+    loginfo "Version $VERSION of template $CATALOG_TEMPLATE_NAME exists, updating..."
   fi
-  mkdir -p "$REPO_DIR/charts/$CATALOG_NAME/$VERSION"
-  cp -rf "$CATALOG_PATH"/* "$REPO_DIR/charts/$CATALOG_NAME/$VERSION/"
+  mkdir -p "$REPO_DIR/charts/$CATALOG_TEMPLATE_NAME/$VERSION"
+  cp -rf "$CATALOG_PATH"/* "$REPO_DIR/charts/$CATALOG_TEMPLATE_NAME/$VERSION/"
   cd $REPO_DIR
 
-  envsubstFunc "$REPO_DIR/charts/$CATALOG_NAME/$VERSION/"
+  envsubstFunc "$REPO_DIR/charts/$CATALOG_TEMPLATE_NAME/$VERSION/"
   loginfo "variable substitution done..."
 
-  git add "$REPO_DIR/charts/$CATALOG_NAME/$VERSION/"
+  git add "$REPO_DIR/charts/$CATALOG_TEMPLATE_NAME/$VERSION/"
   git commit --allow-empty -m "$MESSAGE"
   git push $PUSH_OPTION
 }
