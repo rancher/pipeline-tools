@@ -20,8 +20,8 @@ loginfo(){
 
 # check required env vars
 checkFunc(){
-  if [[ -z "$CATALOG_NAME" ]];then
-    exiterr "CATALOG_NAME variable is not set"
+  if [[ -z "$CATALOG_TEMPLATE_NAME" ]];then
+    exiterr "CATALOG_TEMPLATE_NAME variable is not set"
   fi
   if [[ -z "$APP_NAME" ]];then
     exiterr "APP_NAME variable is not set"
@@ -90,8 +90,8 @@ installAppFunc(){
   checkerr
   exist=$(echo "$apps"|{ grep $APP_NAME || true; })
   if  [[ -z "$exist" ]];then
-  	loginfo "installing new $CATALOG_NAME app \"$APP_NAME\" in $TARGET_NAMESPACE namespace"
-    rancher app install -a /tmp/answers.file --version $VERSION --namespace $TARGET_NAMESPACE $CATALOG_NAME $APP_NAME
+    loginfo "installing new $CATALOG_TEMPLATE_NAME app \"$APP_NAME\" in $TARGET_NAMESPACE namespace"
+    rancher app install -a /tmp/answers.file --version $VERSION --namespace $TARGET_NAMESPACE $CATALOG_TEMPLATE_NAME $APP_NAME
     checkerr
     waitAppActiveFunc
     loginfo "successfully installed the \"$APP_NAME\" app"
