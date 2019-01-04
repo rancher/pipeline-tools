@@ -1,4 +1,4 @@
-set +x
+set -e
 if [[ "$DEBUG" = "true" ]];then
   set -x
 fi
@@ -120,7 +120,6 @@ gitPublishFunc(){
   loginfo "variable substitution done..."
 
   git add "$REPO_DIR/charts/$CATALOG_NAME/$VERSION/"
-  git diff-index --quiet HEAD --ignore-submodules
   git commit --allow-empty -m "$MESSAGE"
   git push $PUSH_OPTION
 }
