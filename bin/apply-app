@@ -91,7 +91,7 @@ installAppFunc(){
   exist=$(echo "$apps"|{ grep $APP_NAME || true; })
   if  [[ -z "$exist" ]];then
     loginfo "installing new $CATALOG_TEMPLATE_NAME app \"$APP_NAME\" in $TARGET_NAMESPACE namespace"
-    rancher app install -a /tmp/answers.file --version $VERSION --namespace $TARGET_NAMESPACE $CATALOG_TEMPLATE_NAME $APP_NAME
+    rancher app install --no-prompt -a /tmp/answers.file --version $VERSION --namespace $TARGET_NAMESPACE $CATALOG_TEMPLATE_NAME $APP_NAME
     checkerr
     waitAppActiveFunc
     loginfo "successfully installed the \"$APP_NAME\" app"
