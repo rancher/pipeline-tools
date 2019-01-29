@@ -65,6 +65,7 @@ prepareFunc(){
 }
 
 waitAppActiveFunc(){
+  loginfo "waiting $APP_NAME to be active..."
   count=0
   limit=60
   until test "$state" = "active" || test $count -gt $limit
@@ -79,10 +80,11 @@ waitAppActiveFunc(){
       exiterr "$transitioningMessage"
     fi
     sleep 5
+    count=$((count + 1))
+    if [[ $count -gt $limit ]];then
+      exiterr "timeout waiting $APP_NAME to be active"
+    fi
   done
-  if [[ $count -gt $limit ]];then
-    exiterr "timeout waiting $APP_NAME to be active"
-  fi
 }
 
 installAppFunc(){
