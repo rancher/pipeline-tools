@@ -21,8 +21,11 @@ steps:
     - ${DRONE_TAG}
     secrets: [docker_username, docker_password]
   when:
-    branch: master
-    event: tag
+    instance:
+    - drone-publish.rancher.io
+    ref:
+    - refs/head/master
+    - refs/tags/*
 
 volumes:
 - name: docker
