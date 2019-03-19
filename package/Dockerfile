@@ -1,6 +1,6 @@
 FROM nginx:1.14.0-alpine
 
-ARG RANCHER_CLI_VERSION=v2.2.0-rc5
+ARG RANCHER_CLI_VERSION=v2.2.0
 RUN apk -U --no-cache add bash curl wget git ca-certificates openssl openssh\
     && mkdir -p /opt/rke-tools/bin /etc/confd \
     && wget https://storage.googleapis.com/kubernetes-release/release/v1.11.2/bin/linux/amd64/kubectl -O /usr/local/bin/kubectl \
