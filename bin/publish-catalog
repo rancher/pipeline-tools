@@ -69,7 +69,9 @@ prepareFunc(){
     chmod 600 ~/.ssh/id_rsa
   else
     #prepare netrc file
-    MACHINE=$(echo $GIT_URL | sed -e "s/[^/]*\/\/\([^@]*@\)\?\([^/]*\).*/\2/")
+    if [[ -z "$MACHINE" ]];then
+      MACHINE=$(echo $GIT_URL | sed -e "s/[^/]*\/\/\([^@]*@\)\?\([^/:]*\).*/\2/")
+    fi
     printf "machine %s\nlogin %s\npassword %s\n" "$MACHINE" "$USERNAME" "$PASSWORD" > ~/.netrc
     chmod 600 ~/.netrc
   fi
