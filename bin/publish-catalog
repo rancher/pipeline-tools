@@ -1,3 +1,4 @@
+#!/bin/bash
 set -e
 if [[ "$DEBUG" = "true" ]];then
   set -x
@@ -75,17 +76,14 @@ prepareFunc(){
     printf "machine %s\nlogin %s\npassword %s\n" "$MACHINE" "$USERNAME" "$PASSWORD" > ~/.netrc
     chmod 600 ~/.netrc
   fi
+
+  setSubstEnv
+
   loginfo "prepare config done..."
 }
 
-#traverse and do envsubst
-envsubstFunc(){
-  for file in `ls $1`
-  do
-    if [[ -d $1"/"$file ]];then
-      envsubstFunc $1"/"$file
-    else
-      envsubst '
+setSubstEnv(){
+  toSubstituteVars='
       ${CICD_GIT_REPO_NAME}
       ${CICD_GIT_URL}
       ${CICD_GIT_COMMIT}
@@ -101,7 +99,25 @@ envsubstFunc(){
       ${CICD_CLUSTER_ID}
       ${CICD_REGISTRY}
       ${CICD_IMAGE_REPO}
-      ${CICD_LOCAL_REGISTRY}'< $1"/"$file > $1"/"$file.tmp
+      ${CICD_LOCAL_REGISTRY}'
+
+  if [[ -n "$CICD_SUBSTITUTE_VARS" ]];then
+    IFS=',' read -ra envArr <<< "$CICD_SUBSTITUTE_VARS"
+    for i in "${envArr[@]}"; do
+      toSubstituteVars=$(printf "%s\n\${%s}" "$toSubstituteVars" "$i")
+    done
+  fi
+  export toSubstituteVars
+}
+
+#traverse and do envsubst
+envsubstFunc(){
+  for file in `ls $1`
+  do
+    if [[ -d $1"/"$file ]];then
+      envsubstFunc $1"/"$file
+    else
+      envsubst "$toSubstituteVars"< $1"/"$file > $1"/"$file.tmp
       mv $1"/"$file.tmp $1"/"$file
     fi
   done
