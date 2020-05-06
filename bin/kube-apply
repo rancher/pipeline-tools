@@ -30,21 +30,4 @@ then
 fi
 
 echo "perform env var substitution"
-sed -i 's^${CICD_LOCAL_REGISTRY}^'"$CICD_LOCAL_REGISTRY^g" "$YAML_PATH"
-sed -i 's^${CICD_GIT_COMMIT}^'"$CICD_GIT_COMMIT^g" "$YAML_PATH"
-sed -i 's^${CICD_GIT_REPO_NAME}^'"$CICD_GIT_REPO_NAME^g" "$YAML_PATH"
-sed -i 's^${CICD_GIT_BRANCH}^'"$CICD_GIT_BRANCH^g" "$YAML_PATH"
-sed -i 's^${CICD_GIT_REF}^'"$CICD_GIT_REF^g" "$YAML_PATH"
-sed -i 's^${CICD_GIT_URL}^'"$CICD_GIT_URL^g" "$YAML_PATH"
-sed -i 's^${CICD_GIT_TAG}^'"$CICD_GIT_TAG^g" "$YAML_PATH"
-sed -i 's^${CICD_PIPELINE_ID}^'"$CICD_PIPELINE_ID^g" "$YAML_PATH"
-sed -i 's^${CICD_TRIGGER_TYPE}^'"$CICD_TRIGGER_TYPE^g" "$YAML_PATH"
-sed -i 's^${CICD_EXECUTION_ID}^'"$CICD_EXECUTION_ID^g" "$YAML_PATH"
-sed -i 's^${CICD_EXECUTION_SEQUENCE}^'"$CICD_EXECUTION_SEQUENCE^g" "$YAML_PATH"
-sed -i 's^${CICD_EVENT}^'"$CICD_EVENT^g" "$YAML_PATH"
-sed -i 's^${CICD_CLUSTER_ID}^'"$CICD_CLUSTER_ID^g" "$YAML_PATH"
-sed -i 's^${CICD_PROJECT_ID}^'"$CICD_PROJECT_ID^g" "$YAML_PATH"
-sed -i 's^${CICD_REGISTRY}^'"$CICD_REGISTRY^g" "$YAML_PATH"
-sed -i 's^${CICD_IMAGE}^'"$CICD_IMAGE^g" "$YAML_PATH"
-
-kubectl apply -f "$YAML_PATH"
+cat "$YAML_PATH" | envsubst | kubectl apply -f -
