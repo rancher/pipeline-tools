@@ -16,13 +16,15 @@ http {
 
     {{$data := json (getv "/mappings")}}
     {{range $project, $port := $data}}
+    upstream docker-registry.{{$project}}-pipeline {
+        server docker-registry.{{$project}}-pipeline:443;
+    }
     server {
         listen  127.0.0.1:{{$port}};
         location /v2/ {
             add_header 'Docker-Distribution-Api-Version' $docker_distribution_api_version always;
-	    set $registry "https://docker-registry.{{$project}}-pipeline.svc.cluster.local:443";
 
-            proxy_pass        $registry;
+            proxy_pass        https://docker-registry.{{$project}}-pipeline;
 	    proxy_ssl_verify on;
 	    proxy_ssl_trusted_certificate /opt/crt/ca.crt;
             proxy_set_header  Host              $http_host;   # required for docker client's sake
