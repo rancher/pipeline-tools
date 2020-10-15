@@ -70,7 +70,7 @@ waitAppActiveFunc(){
   limit=60
   until test "$state" = "active" || test $count -gt $limit
   do
-    resourceItem=$(rancher app ls --format '{{.App.Name}} {{.App.State}} {{.App.Transitioning}} {{.App.TransitioningMessage}}'|grep "$APP_NAME ")
+    resourceItem=$(rancher app ls --format '{{.App.Name}} {{.App.State}} {{.App.Transitioning}} {{.App.TransitioningMessage}}'|grep "^$APP_NAME ")
     checkerr
 
     state=$(echo $resourceItem|cut -f2 -d' ')
@@ -90,7 +90,7 @@ waitAppActiveFunc(){
 installAppFunc(){
   apps=$(rancher app ls --format '{{.App.Name}}')
   checkerr
-  exist=$(echo "$apps"|{ grep $APP_NAME || true; })
+  exist=$(echo "$apps"|{ grep "^$APP_NAME$" || true; })
   if  [[ -z "$exist" ]];then
     loginfo "installing new $CATALOG_TEMPLATE_NAME app \"$APP_NAME\" in $TARGET_NAMESPACE namespace"
     rancher app install --no-prompt -a /tmp/answers.file --version $VERSION --namespace $TARGET_NAMESPACE $CATALOG_TEMPLATE_NAME $APP_NAME
