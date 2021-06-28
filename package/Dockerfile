@@ -1,4 +1,4 @@
-FROM nginx:1.14.0-alpine
+FROM nginx:1.21.0-alpine
 
 ARG RANCHER_CLI_VERSION=v2.3.0
 RUN apk -U --no-cache add bash curl wget git ca-certificates openssl openssh\
